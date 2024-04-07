@@ -7,14 +7,28 @@ import {MyGovernor} from "../src/MyGovernor.sol";
 import {Box} from "../src/Box.sol";
 import {TimeLock} from "../src/TimeLock.sol";
 import {GovToken} from "../src/GovToken.sol";
+import {DeployGovernor} from "../script/DeployGovernor.s.sol";
 
 contract GovernorTest is Test {
     MyGovernor governor;
     Box box;
     TimeLock timeLock;
     GovToken govToken;
+    DeployGovernor daoDeployer;
 
-    address public USER = makeAddr("USER");
+    // address public USER = makeAddr("USER");
+
+    // Allfeat test pubk owner
+    // address public ALLFEAT_USER = 0xbfae728Cf6D20DFba443c5A297dC9b344108de90;
+    // Sepolia test pubk owner
+    // address public SEPOLIA_USER = 0xCAfDB1c46c5036A83e2778CCc85e0F12Ce21Eb06;
+
+    // Allfeat test pubk owner
+    // address public USER = 0xbfae728Cf6D20DFba443c5A297dC9b344108de90;
+    // Sepolia test pubk owner
+    address public owner;
+    address public USER = 0xCAfDB1c46c5036A83e2778CCc85e0F12Ce21Eb06;
+
     uint256 public constant INITIAL_SUPPLY = 100 ether;
     uint256 public constant MIN_DELAY = 3600; // 1 hour, after a vote is passed
     uint256 public constant VOTING_DELAY = 1; // 1 block, blocks till a proposal is active
@@ -28,30 +42,36 @@ contract GovernorTest is Test {
     address[] public targets;
 
     function setUp() public {
-        govToken = new GovToken();
-        govToken.mint(USER, INITIAL_SUPPLY);
+        daoDeployer = new DeployGovernor();
+        (owner, govToken, timeLock, governor, box) = daoDeployer.run();
+        USER = owner;
 
-        vm.startPrank(USER);
-        govToken.delegate(USER); // to allow ourselves to vote
-        timeLock = new TimeLock(MIN_DELAY, proposers, executors, USER); // everyone can propose and execute
-        governor = new MyGovernor(govToken, timeLock);
+        //////////////// INITIAL TEST (without deployment script) ////////////////
+        // govToken = new GovToken();
+        // govToken.mint(USER, INITIAL_SUPPLY);
 
-        // roles
-        bytes32 proposerRole = timeLock.PROPOSER_ROLE();
-        bytes32 executorRole = timeLock.EXECUTOR_ROLE();
-        bytes32 adminRole = timeLock.DEFAULT_ADMIN_ROLE();
+        // vm.startPrank(USER);
+        // govToken.delegate(USER); // to allow ourselves to vote
+        // timeLock = new TimeLock(MIN_DELAY, proposers, executors, USER); // everyone can propose and execute
+        // governor = new MyGovernor(govToken, timeLock);
 
-        timeLock.grantRole(proposerRole, address(governor));
-        timeLock.grantRole(executorRole, address(0)); // anyone can execute
-        timeLock.revokeRole(adminRole, USER); // remove the default admin role => no more admin
-        vm.stopPrank();
+        // // roles
+        // bytes32 proposerRole = timeLock.PROPOSER_ROLE();
+        // bytes32 executorRole = timeLock.EXECUTOR_ROLE();
+        // bytes32 adminRole = timeLock.DEFAULT_ADMIN_ROLE();
 
-        box = new Box(address(this));
-        box.transferOwnership(address(timeLock)); // timeLock owns the DAO and DAO owns the timeLock
-            // timeLock ultimately controls the box
+        // timeLock.grantRole(proposerRole, address(governor));
+        // timeLock.grantRole(executorRole, address(0)); // anyone can execute
+        // timeLock.revokeRole(adminRole, USER); // remove the default admin role => no more admin
+        // vm.stopPrank();
+
+        // timeLock owns the DAO and DAO owns the timeLock
+        // box = new Box(address(this));
+        // box.transferOwnership(address(timeLock));
+        // timeLock ultimately controls the box
     }
 
-    function testCantUpdateBoxWithoutGovernance() public {
+    function test_CantUpdateBoxWithoutGovernance() public {
         vm.expectRevert();
         box.store(1);
     }
@@ -81,8 +101,8 @@ contract GovernorTest is Test {
 
         vm.prank(USER);
         governor.castVoteWithReason(proposalId, voteWay, reason);
-        vm.warp(block.timestamp + VOTING_PERIOD + 1);
-        vm.roll(block.number + VOTING_PERIOD + 1);
+        vm.warp(block.timestamp + VOTING_PERIOD + 1); //1
+        vm.roll(block.number + VOTING_PERIOD + 1); //1
         console.log("GovernorTest / Proposal state :", uint256(governor.state(proposalId)));
 
         // 3. queue
