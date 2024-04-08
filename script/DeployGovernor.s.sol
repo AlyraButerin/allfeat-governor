@@ -17,7 +17,7 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 /**
  * @title DeployGovernor
  * @dev This contract deploys the Governor contracts and sets up the roles, ownership and delegation
- *
+ * @dev This version is the same version as DURING HACKATHON
  */
 contract DeployGovernor is Script {
     struct NetworkConfig {
