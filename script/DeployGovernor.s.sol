@@ -11,6 +11,14 @@ import {TimeLock} from "../src/TimeLock.sol";
 import {GovToken} from "../src/GovToken.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
+/*
+ * @note owner is used to broadcast to have the same behavior in all scripts and cases
+ */
+/**
+ * @title DeployGovernor
+ * @dev This contract deploys the Governor contracts and sets up the roles, ownership and delegation
+ *
+ */
 contract DeployGovernor is Script {
     struct NetworkConfig {
         address deployerAddress;

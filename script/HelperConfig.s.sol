@@ -4,6 +4,10 @@ pragma solidity ^0.8.20;
 
 import {Script, console} from "forge-std/Script.sol";
 
+/*
+ * @note owner is used to broadcast to have the same behavior in all scripts and cases
+ * if needed we can get it with the deployer address in the network config
+ */
 /**
  * @title HelperConfig
  * @dev script used to get network related config if needed

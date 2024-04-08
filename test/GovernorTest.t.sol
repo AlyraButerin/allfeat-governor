@@ -9,6 +9,9 @@ import {TimeLock} from "../src/TimeLock.sol";
 import {GovToken} from "../src/GovToken.sol";
 import {DeployGovernor} from "../script/DeployGovernor.s.sol";
 
+/*
+ * @note owner is used to broadcast/prank to have the same behavior in all scripts and cases
+ */
 /**
  * @title GovernorTest
  * @dev This contract tests the Governor contract
