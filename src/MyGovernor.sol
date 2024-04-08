@@ -31,6 +31,9 @@ contract MyGovernor is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
+    /*
+     * @note GovernorSettings: 1 block delay, 1 week voting period, 0 proposal threshold
+     */
     constructor(IVotes _token, TimelockController _timelock)
         Governor("MyGovernor")
         GovernorSettings(1, /* 1 block */ 50400, /* 1 week */ 0)
@@ -38,6 +41,15 @@ contract MyGovernor is
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
     {}
+
+    // // @note version with minimal settings for individual script on testnet
+    // constructor(IVotes _token, TimelockController _timelock)
+    //     Governor("MyGovernor")
+    //     GovernorSettings(1, /* 1 block */ 1, /* 1 sec */ 0)
+    //     GovernorVotes(_token)
+    //     GovernorVotesQuorumFraction(4)
+    //     GovernorTimelockControl(_timelock)
+    // {}
 
     // The following functions are overrides required by Solidity.
 
