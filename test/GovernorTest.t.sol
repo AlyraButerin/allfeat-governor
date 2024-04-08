@@ -9,6 +9,11 @@ import {TimeLock} from "../src/TimeLock.sol";
 import {GovToken} from "../src/GovToken.sol";
 import {DeployGovernor} from "../script/DeployGovernor.s.sol";
 
+/**
+ * @title GovernorTest
+ * @dev This contract tests the Governor contract
+ * @dev This version use the script deploying and configuring the DAO => as DURING HACKATHON
+ */
 contract GovernorTest is Test {
     MyGovernor governor;
     Box box;
@@ -16,18 +21,7 @@ contract GovernorTest is Test {
     GovToken govToken;
     DeployGovernor daoDeployer;
 
-    // address public USER = makeAddr("USER");
-
-    // Allfeat test pubk owner
-    // address public ALLFEAT_USER = 0xbfae728Cf6D20DFba443c5A297dC9b344108de90;
-    // Sepolia test pubk owner
-    // address public SEPOLIA_USER = 0xCAfDB1c46c5036A83e2778CCc85e0F12Ce21Eb06;
-
-    // Allfeat test pubk owner
-    // address public USER = 0xbfae728Cf6D20DFba443c5A297dC9b344108de90;
-    // Sepolia test pubk owner
     address public owner;
-    address public USER = 0xCAfDB1c46c5036A83e2778CCc85e0F12Ce21Eb06;
 
     uint256 public constant INITIAL_SUPPLY = 100 ether;
     uint256 public constant MIN_DELAY = 3600; // 1 hour, after a vote is passed
@@ -44,15 +38,18 @@ contract GovernorTest is Test {
     function setUp() public {
         daoDeployer = new DeployGovernor();
         (owner, govToken, timeLock, governor, box) = daoDeployer.run();
-        USER = owner;
 
         //////////////// INITIAL TEST (without deployment script) ////////////////
+        //
+        // this version won't work with deployment script as we need to broadcast in the script
+        // and broadcast is incompatible with prank => comment lines 39 & 40 above to use this version
+        //
         // govToken = new GovToken();
-        // govToken.mint(USER, INITIAL_SUPPLY);
+        // govToken.mint(owner, INITIAL_SUPPLY);
 
-        // vm.startPrank(USER);
-        // govToken.delegate(USER); // to allow ourselves to vote
-        // timeLock = new TimeLock(MIN_DELAY, proposers, executors, USER); // everyone can propose and execute
+        // vm.startPrank(owner); // !! prank NOT POSSIBLE if broadcast in progress (in script)
+        // govToken.delegate(owner); // to allow ourselves to vote
+        // timeLock = new TimeLock(MIN_DELAY, proposers, executors, owner); // everyone can propose and execute
         // governor = new MyGovernor(govToken, timeLock);
 
         // // roles
@@ -62,7 +59,7 @@ contract GovernorTest is Test {
 
         // timeLock.grantRole(proposerRole, address(governor));
         // timeLock.grantRole(executorRole, address(0)); // anyone can execute
-        // timeLock.revokeRole(adminRole, USER); // remove the default admin role => no more admin
+        // timeLock.revokeRole(adminRole, owner); // remove the default admin role => no more admin
         // vm.stopPrank();
 
         // timeLock owns the DAO and DAO owns the timeLock
@@ -99,10 +96,10 @@ contract GovernorTest is Test {
         // support => VoteType : 0/Against, 1/For, 2/Abstain
         uint8 voteWay = 1; // for
 
-        vm.prank(USER);
+        vm.prank(owner);
         governor.castVoteWithReason(proposalId, voteWay, reason);
-        vm.warp(block.timestamp + VOTING_PERIOD + 1); //1
-        vm.roll(block.number + VOTING_PERIOD + 1); //1
+        vm.warp(block.timestamp + VOTING_PERIOD + 1);
+        vm.roll(block.number + VOTING_PERIOD + 1);
         console.log("GovernorTest / Proposal state :", uint256(governor.state(proposalId)));
 
         // 3. queue

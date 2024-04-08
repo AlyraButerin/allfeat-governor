@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {Script, console} from "forge-std/Script.sol";
-import {DevOpsTools} from "foundry-devops/src/DevOpsTools.sol";
+// import {DevOpsTools} from "foundry-devops/src/DevOpsTools.sol";
 
 import {MyGovernor} from "../src/MyGovernor.sol";
 import {Box} from "../src/Box.sol";
@@ -13,8 +13,9 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 
 contract DeployGovernor is Script {
     struct NetworkConfig {
-        address ownerPubAddress;
+        address deployerAddress;
         uint256 deployerKey;
+        uint256 chainId;
     }
 
     GovToken public govToken;
@@ -42,10 +43,10 @@ contract DeployGovernor is Script {
 
         helperConfig = new HelperConfig();
 
-        (address ownerPubAddress,, uint256 chainId) = helperConfig.activeNetworkConfig();
-        owner = ownerPubAddress;
+        (address deployerAddress,, uint256 chainId) = helperConfig.activeNetworkConfig();
+        owner = deployerAddress;
         console.log("Chain ID", chainId);
-        console.log("Owner public address", owner);
+        console.log("Owner/Deployer address", owner);
 
         vm.startBroadcast(owner);
 
@@ -98,7 +99,6 @@ contract DeployGovernor is Script {
         // console.log("Gas left / after GovToken actions:", gasLeftAfterBoxTransfer);
 
         // timeLock ultimately controls the box
-        // timeLock owns the DAO and DAO owns the timeLock
         console.log("New Box owner", box.owner());
 
         vm.stopBroadcast();
