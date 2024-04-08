@@ -21,7 +21,7 @@ We are not interested in securing or setting everything but just have basic func
 
 I used env variables in commands and in script to ensure there's no problem of ownership or authorization and to have the same behavior in all configurations.
 
-### Installation:
+## Installation:
 
 - clone the repo then : `forge install` to install/update dependencies
 
@@ -54,74 +54,78 @@ command: `forge test`
 
 ### Testnets test: everything passes
 
-first and after any change in the '.env' load environment variables: source .env
+**SEPOLIA** test command: `forge test --fork-url $SEPOLIA_RPC_URL --match-contract "GovernorTest"`
 
-SEPOLIA test command: `forge test --fork-url $SEPOLIA_RPC_URL --match-contract "GovernorTest"`
-
-ALLFEAT test command: `forge test --fork-url $ALLFEAT_RPC_URL --match-contract "GovernorTest"`
+**ALLFEAT** test command: `forge test --fork-url $ALLFEAT_RPC_URL --match-contract "GovernorTest"`
 
 add -vvvvv for max log traces if needed
 
-### With deployment script:
+## With deployment scripts:
 
-#### 1. Global script (one script deploying all contracts) as during Hackathon
+### 1. Global script (one script deploying all contracts) as during Hackathon
 
 using : GovernorTest.t.sol, HelperConfig.s.sol, DeployGovernor.s.sol
 
-##### TESTS
+#### TESTS
 
-Sepolia test: `forge test --fork-url $SEPOLIA_RPC_URL -vvvvv`
+**Sepolia** test: `forge test --fork-url $SEPOLIA_RPC_URL -vvvvv`
 
-Allfeat test: `forge test --fork-url $ALLFEAT_RPC_URL -vvvvv`
+**Allfeat** test: `forge test --fork-url $ALLFEAT_RPC_URL -vvvvv`
 
+<details>
+
+<summary>
 all the tests pass:
-
+</summary>
 Test result: ok. 2 passed; 0 failed; 0 skipped; finished in 464.60ms
 
 Ran 1 test suites: 2 tests passed, 0 failed, 0 skipped (2 total tests)
 
-##### DEPLOYMENTS
+</details>
 
-Sepolia: `forge script script/DeployGovernor.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+#### DEPLOYMENTS
 
-Sepolia deployment is ok
+**Sepolia**: `forge script script/DeployGovernor.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
 
-Allfeat: `forge script script/DeployGovernor.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+✅ Sepolia deployment is ok.
 
-same success output as for sepolia but at the end :
+**Allfeat**: `forge script script/DeployGovernor.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+
+❗same success output as for sepolia but at the end :
 
 Transaction Failure: 0x4ef1f6c96fc4cf38a5bcc589b1ad8e8d7a6c70c8615542beb96f8ad7e8f50203
 Transaction Failure: 0x9ed993ce30b37af7934b7754c47f2c23d2576ead4cd31530b6ad149809fc2b8c
 Transaction Failure: 0x6ad0fa1cd0d7f303ed6974b3be1dcdffe55c76afef8bdba050d526a5d268bbc1
 
-When examining the explorer we may see that the 'out of gas' errors are referenced for tx concerning the deployment address specified for 'TimeLock'.
+When examining the allfeat explorer we may see that the 'out of gas' errors are referenced for tx concerning the deployment address specified for 'TimeLock'.
 
 For this address, there is an element (ethereum.Executed) 'succeded' and 3 with the same error.
 This confirms that the contract is well deployed but that the 3 calls to TimeLock to manage the roles are problematic
 
-#### 2. Segmented script
+### 2. Segmented script
 
 using test/stepDeployment folder
 
 these scripts segregate each action to ensure that deployment is not the issue.
 
-order of orders for sepolia:
+**order of commands to run for sepolia:**
 
-`forge script script/stepDeployment/DeployOnlyBox.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- Box deployment:
+  `forge script script/stepDeployment/DeployOnlyBox.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- Token deployment:
+  `forge script script/stepDeployment/DeployOnlyToken.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- TimeLock deployment:
+  `forge script script/stepDeployment/DeployOnlyTimeLock.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- Governor deployment:
+  `forge script script/stepDeployment/DeployOnlyGovernor.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- Setup of Box and Token:
+  `forge script script/stepDeployment/SetupBoxAndToken.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- Setup of TimeLock:
+  `forge script script/stepDeployment/SetupDAO.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+- First action: propose:
+  `forge script script/stepDeployment/Action1_propose.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
 
-`forge script script/stepDeployment/DeployOnlyToken.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/DeployOnlyTimeLock.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/DeployOnlyGovernor.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/SetupBoxAndToken.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/SetupDAO.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/Action1_propose.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-following not finished (buggy at the moment)
+following scripts are not finished (buggy at the moment)
 
 `forge script script/stepDeployment/Action2_vote.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
 
@@ -129,18 +133,19 @@ following not finished (buggy at the moment)
 
 `forge script script/stepDeployment/Action4_execute.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
 
-order of orders for allfeat:
+**order of commands to run for allfeat:**
 
-`forge script script/stepDeployment/DeployOnlyBox.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/DeployOnlyToken.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/DeployOnlyTimeLock.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/DeployOnlyGovernor.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/SetupBoxAndToken.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/SetupDAO.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+- Box deployment:
+  `forge script script/stepDeployment/DeployOnlyBox.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+- Token deployment:
+  `forge script script/stepDeployment/DeployOnlyToken.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+- TimeLock deployment:
+  `forge script script/stepDeployment/DeployOnlyTimeLock.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+- Governor deployment:
+  `forge script script/stepDeployment/DeployOnlyGovernor.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+- Setup of Box and Token:
+  `forge script script/stepDeployment/SetupBoxAndToken.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
+- Setup of TimeLock
+  `forge script script/stepDeployment/SetupDAO.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
 
 this last command causes the problem in the same way as with the global script, so the 3 calls to TimeLock are the problem
