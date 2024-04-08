@@ -4,8 +4,15 @@ pragma solidity ^0.8.20;
 
 import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 
+/**
+ * @title TimeLock
+ * @dev This contract is a TimelockController
+ * @dev This is the master contract as it manages roles/delay and owns the target contract (Box)
+ * @dev It is used to queue and execute operations
+ * @dev It is used to allow people to leave the system if they disagree with a proposal
+ */
 contract TimeLock is TimelockController {
-    /*
+    /**
      * @param minDelay: minimum delay for a proposal to be executed
      * @param proposers: list of addresses that can propose a new operation
      * @param executors: list of addresses that can execute a proposal

@@ -20,6 +20,11 @@ import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
  *     -> _afterTokenTransfer updates the voting power of the sender and receiver calling _moveVotingPower
  *     which uses _writeCheckpoint to update the voting power.
  */
+/**
+ * @title GovToken
+ * @dev Implementation of the {ERC20} with permit, and {ERC20Votes} interfaces.
+ * @dev This is the gouvernance token of the DAO.
+ */
 contract GovToken is ERC20, ERC20Permit, ERC20Votes {
     constructor() ERC20("GovToken", "GTK") ERC20Permit("GovToken") {}
 
