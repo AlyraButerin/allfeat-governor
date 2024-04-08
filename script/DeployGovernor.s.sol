@@ -45,10 +45,10 @@ contract DeployGovernor is Script {
     function run() external returns (address, GovToken, TimeLock, MyGovernor, Box) {
         // uint256 gasLimit = block.gaslimit;
         // console.log("Gas limit / before deployment:", gasLimit);
+        // uint256 gasLeftBeforeDeploy = gasleft();
+        // console.log("Gas left / before deployment:", gasLeftBeforeDeploy);
 
-        uint256 gasLeftBeforeDeploy = gasleft();
-        console.log("Gas left / before deployment:", gasLeftBeforeDeploy);
-
+        // LOAD ENV VARIABLES
         helperConfig = new HelperConfig();
 
         (address deployerAddress,, uint256 chainId) = helperConfig.activeNetworkConfig();
@@ -56,8 +56,10 @@ contract DeployGovernor is Script {
         console.log("Chain ID", chainId);
         console.log("Owner/Deployer address", owner);
 
+        // BROACAST WITH OWNER
         vm.startBroadcast(owner);
 
+        // 1. GOV TOKEN
         govToken = new GovToken();
         // uint256 gasLeftAfterTokenDeploy = gasleft();
         // console.log("Gas left / after GovToken deployment:", gasLeftAfterTokenDeploy);
@@ -66,15 +68,17 @@ contract DeployGovernor is Script {
         // uint256 gasLeftAfterTokenActions = gasleft();
         // console.log("Gas left / after GovToken actions:", gasLeftAfterTokenActions);
 
+        // 2. TIMELOCK
         timeLock = new TimeLock(MIN_DELAY, proposers, executors, owner); // everyone can propose and execute
         // uint256 gasLeftAfterTimeLockDeploy = gasleft();
         // console.log("Gas left / after MyGovernor deployment:", gasLeftAfterTimeLockDeploy);
 
+        // 3. MY GOVERNOR
         governor = new MyGovernor(govToken, timeLock);
         // uint256 gasLeftAfterGovDeploy = gasleft();
         // console.log("Gas left / after MyGovernor deployment:", gasLeftAfterGovDeploy);
 
-        // roles
+        // 4. ROLES in TIMELOCK
         bytes32 proposerRole = timeLock.PROPOSER_ROLE();
         bytes32 executorRole = timeLock.EXECUTOR_ROLE();
         bytes32 adminRole = timeLock.DEFAULT_ADMIN_ROLE();
@@ -82,10 +86,10 @@ contract DeployGovernor is Script {
         timeLock.grantRole(proposerRole, address(governor));
         timeLock.grantRole(executorRole, address(0)); // anyone can execute
         timeLock.revokeRole(adminRole, owner); // remove the default admin role => no more admin
-        uint256 gasLeftAfterRoles = gasleft();
-        console.log("Gas left / after roles attributions:", gasLeftAfterRoles);
+        // uint256 gasLeftAfterRoles = gasleft();
+        // console.log("Gas left / after roles attributions:", gasLeftAfterRoles);
 
-        // box = new Box(address(this));
+        // 5. BOX
         box = new Box(owner);
         // uint256 gasLeftAfterBoxDeploy = gasleft();
         // console.log("Gas left / after GovToken actions:", gasLeftAfterBoxDeploy);
@@ -97,10 +101,8 @@ contract DeployGovernor is Script {
         console.log("Box address", address(box));
 
         //ownership of contracts :
-        // console.log("GovToken owner", owner);
-        // console.log("TimeLock owner", timeLock.owner());
-        // console.log("MyGovernor owner", governor.owner());
-        console.log("Box owner", box.owner());
+        console.log("Contracts deployer/owner", owner);
+        console.log("Original Box owner", box.owner());
 
         box.transferOwnership(address(timeLock));
         // uint256 gasLeftAfterBoxTransfer = gasleft();
@@ -110,8 +112,8 @@ contract DeployGovernor is Script {
         console.log("New Box owner", box.owner());
 
         vm.stopBroadcast();
-        uint256 gasLeftAfterDeploy = gasleft();
-        console.log("Gas left / after deployment:", gasLeftAfterDeploy);
+        // uint256 gasLeftAfterDeploy = gasleft();
+        // console.log("Gas left / after deployment:", gasLeftAfterDeploy);
 
         return (owner, govToken, timeLock, governor, box);
     }
