@@ -1,8 +1,10 @@
 # Deployment of a DAO on the Allfeat network
 
-> in solidity with openzeppelin’s 'Governor' suite
+> In solidity with openzeppelin’s 'Governor' suite.
 
-> Purpose: to reproduce and debug the contract deployment error
+> Purpose: to reproduce and debug the contract deployment error.
+
+> **_[This issue](https://github.com/Allfeat/Allfeat/issues/34) has been fixed in this [PR](https://github.com/Allfeat/Allfeat/pull/35)._**
 
 Not exactly the same contracts as during the hackathon, I took the simplest classic example found in all the examples namely a DAO to execute a value change on a 'Box' contract.
 
@@ -125,13 +127,7 @@ these scripts segregate each action to ensure that deployment is not the issue.
 - First action: propose:
   `forge script script/stepDeployment/Action1_propose.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
 
-following scripts are not finished (buggy at the moment)
-
-`forge script script/stepDeployment/Action2_vote.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/Action3_queue.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
-
-`forge script script/stepDeployment/Action4_execute.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $SEPOLIA_PRIVATE_KEY --broadcast`
+The scripts of the following actions are not finished at the moment (still buggy) but they go beyond the context of the error.
 
 **order of commands to run for allfeat:**
 
@@ -148,4 +144,4 @@ following scripts are not finished (buggy at the moment)
 - Setup of TimeLock
   `forge script script/stepDeployment/SetupDAO.s.sol --rpc-url $ALLFEAT_RPC_URL --private-key $ALLFEAT_PRIVATE_KEY --broadcast`
 
-this last command causes the problem in the same way as with the global script, so the 3 calls to TimeLock are the problem
+This last command causes the problem in the same way as with the global script, so the 3 calls to TimeLock are the problem.

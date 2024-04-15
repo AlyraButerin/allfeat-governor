@@ -42,7 +42,7 @@ contract MyGovernor is
         GovernorTimelockControl(_timelock)
     {}
 
-    // // @note version with minimal settings for individual script on testnet
+    // @note version with minimal settings for individual script on testnet
     // constructor(IVotes _token, TimelockController _timelock)
     //     Governor("MyGovernor")
     //     GovernorSettings(1, /* 1 block */ 1, /* 1 sec */ 0)
